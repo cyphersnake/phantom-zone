@@ -84,3 +84,119 @@ All provided parameters are $2^{128}$ ring operations secure according to [latti
 ## References
 1. [Efficient FHEW Bootstrapping with Small Evaluation Keys, and Applications to Threshold Homomorphic Encryption](https://eprint.iacr.org/2022/198.pdf)
 2. [Multiparty Homomorphic Encryption from Ring-Learning-with-Errors](https://eprint.iacr.org/2020/304.pdf)
+
+## Developer Onboarding Guide
+
+Welcome to the Phantom Zone development community! This section will help you understand the codebase structure and get started with contributing to the project.
+
+### Project Structure
+
+The codebase is organized into several key modules:
+
+- [**backend/**](./src/backend/): Core arithmetic operations and modular arithmetic implementations
+  - [modulus_u64.rs](./src/backend/modulus_u64.rs): Implementation of modular arithmetic for u64
+  - [power_of_2.rs](./src/backend/power_of_2.rs): Specialized operations for power-of-2 moduli
+  - [word_size.rs](./src/backend/word_size.rs): Word-size specific operations
+
+- [**bool/**](./src/bool/): Boolean operations and key management
+  - [evaluator.rs](./src/bool/evaluator.rs): Evaluator for boolean circuits
+  - [keys.rs](./src/bool/keys.rs): Key management for boolean operations
+  - [mp_api.rs](./src/bool/mp_api.rs): Multi-party API for interactive protocol
+  - [ni_mp_api.rs](./src/bool/ni_mp_api.rs): Non-interactive multi-party API
+
+- [**shortint/**](./src/shortint/): 8-bit unsigned integer operations
+  - [enc_dec.rs](./src/shortint/enc_dec.rs): Encryption and decryption operations
+  - [ops.rs](./src/shortint/ops.rs): Arithmetic operations for encrypted integers
+
+- Other core components:
+  - [ntt.rs](./src/ntt.rs): Number Theoretic Transform implementation
+  - [lwe.rs](./src/lwe.rs): Learning With Errors cryptographic primitives
+  - [pbs.rs](./src/pbs.rs): Programmable Bootstrapping operations
+  - [multi_party.rs](./src/multi_party.rs): Multi-party computation protocols
+  - [rgsw/](./src/rgsw/): Ring-GSW cryptographic primitives
+
+### Getting Started
+
+1. **Set Up Your Environment**
+   ```
+   git clone https://github.com/phantomzone-org/phantom-zone.git
+   cd phantom-zone
+   ```
+
+2. **Build the Project**
+   ```
+   cargo build
+   # With features:
+   cargo build --features "non_interactive_mp"
+   cargo build --features "interactive_mp"
+   ```
+
+3. **Run Tests**
+   ```
+   cargo test
+   cargo test --features "non_interactive_mp"
+   ```
+
+4. **Run Examples**
+   
+   The examples directory contains several educational examples:
+   - [non_interactive_fheuint8.rs](./examples/non_interactive_fheuint8.rs): Basic non-interactive protocol
+   - [interactive_fheuint8.rs](./examples/interactive_fheuint8.rs): Basic interactive protocol
+   - [meeting_friends.rs](./examples/meeting_friends.rs): Location-based private matching
+   - [bomberman.rs](./examples/bomberman.rs): Game logic with encrypted data
+   - [div_by_zero.rs](./examples/div_by_zero.rs): Error flag handling
+   - [if_and_else.rs](./examples/if_and_else.rs): Conditional operations using multiplexing
+
+   ```
+   cargo run --example interactive_fheuint8 --features "interactive_mp"
+   cargo run --example non_interactive_fheuint8 --features "non_interactive_mp"
+   ```
+
+### Data Flow in Phantom Zone
+
+Understanding the data flow is crucial to developing with Phantom Zone:
+
+1. **Key Generation**
+   - Each client generates a private key
+   - Depending on protocol (interactive or non-interactive), clients generate key shares
+
+2. **Encryption**
+   - Clients encrypt their private inputs using their keys
+   - Encrypted data is sent to the server
+
+3. **Computation**
+   - Server performs homomorphic operations on the encrypted data
+   - Operations may include arithmetic, boolean logic, or complex functions 
+
+4. **Decryption**
+   - Each client generates a decryption share from the result
+   - Shares are aggregated to decrypt the final result
+
+### Implementation Patterns
+
+When implementing new features:
+
+1. **Define the Trait**: Start with trait definition for your new functionality
+2. **Implement Low-Level Operations**: Implement operations at the cryptographic level
+3. **Create High-Level API**: Build user-friendly APIs that abstract the complexity
+4. **Add Tests**: Always add tests to validate your implementation
+5. **Create Example**: Consider adding an example to demonstrate usage
+
+### Common Development Tasks
+
+- **Adding a New Operation**: Extend the appropriate files in `shortint/ops.rs` or `bool/`
+- **Optimizing Performance**: Focus on `ntt.rs`, `pbs.rs`, or backend implementations
+- **Extending to New Integer Types**: Start with `shortint/` as a template
+- **Improving Security**: Review `multi_party.rs` and key generation
+
+### Benchmarking
+
+Use the benchmarks to measure performance:
+
+```
+cargo bench
+```
+
+Benchmark files in `benches/` directory provide examples of how to measure performance of critical operations.
+
+For more detailed information, explore the code and documentation. Feel free to open issues or submit pull requests with improvements!
